@@ -49,7 +49,7 @@ function goDeliveryStart(orderno) {
         url: ctxPath + "/admin/admin_order.lp", 
         type: "POST", 
         data: {
-            "mode": "updateDeliveryStart", // [수정] updateDelivery -> updateDeliveryStart
+            "mode": "updateDeliveryStart", 
             "orderno": orderno, 
             "receiverName": receiver, 
             "delivery_company": company, 
@@ -76,7 +76,7 @@ function goDeliveryEnd(orderno) {
     $.ajax({
         url: ctxPath + "/admin/admin_order.lp", 
         type: "POST", 
-        data: { "mode": "updateDeliveryEnd", "orderno": orderno }, // [확인] 일치함
+        data: { "mode": "updateDeliveryEnd", "orderno": orderno }, 
         dataType: "json", 
         success: function(json) {
             if(json.result == 1) { 
@@ -138,7 +138,7 @@ function applyAddress() {
         url: ctxPath + "/admin/admin_order.lp",
         type: "POST",
         data: {
-            "mode": "updateOrderAddress", // [수정] updateAddress -> updateOrderAddress
+            "mode": "updateOrderAddress", 
             "orderno": orderno,
             "postcode": postcode,
             "address": address,
@@ -156,6 +156,24 @@ function applyAddress() {
         },
         error: function(request, status, error){
             alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
+        }
+    });
+}
+
+// [추가] 상품 목록 펼치기/접기 토글 함수
+function toggleProductList(orderno, btn) {
+    const targetId = "#extra_items_" + orderno;
+    const $target = $(targetId);
+    
+    // 현재 보임 상태 확인 (jQuery slideToggle 사용)
+    $target.slideToggle(200, function() {
+        // 애니메이션이 끝난 후 버튼 텍스트 변경 (요청사항: 단순히 '접기/펼치기'만 사용)
+        if ($target.is(":visible")) {
+            $(btn).text("접기 ▲");
+            $(btn).css("background", "#f0f0f0");
+        } else {
+            $(btn).text("펼치기 ▼");
+            $(btn).css("background", "#fff");
         }
     });
 }

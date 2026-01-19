@@ -23,7 +23,7 @@
 <script>
     const ctxPath = "<%= ctxPath %>";
     
-    // JS 함수: updateMaxLength (기존 코드 유지)
+    // 송장번호 길이 제한 로직 (단순 이벤트 핸들러라 여기에 남김, 필요 시 JS 파일 이동 가능)
     function updateMaxLength(orderno) {
         const company = $("#company_" + orderno).val();
         const $invoiceInput = $("#invoice_" + orderno);
@@ -70,7 +70,7 @@
                   onclick="location.href='<%= ctxPath %>/admin/admin_order.lp?status=배송완료'">배송완료</button>
       </div>
 
-<table class="order-table">
+      <table class="order-table">
         <colgroup>
             <col width="8%">  <%-- 주문번호 --%>
             <col width="8%">  <%-- 받는 분 --%>
@@ -108,7 +108,6 @@
                     <td class="addr-info" style="text-align: left;">
                         [${map.postcode}] ${map.address}<br>
                         ${map.detailaddress} ${map.extraaddress}<br>
-                        <%-- [수정] 복호화된 연락처 표시 --%>
                         <span style="font-size:12px; color:#888;">${map.mobile}</span>
                         <div style="margin-top:5px;">
                             <button type="button" class="btn-addr-edit" 
@@ -116,53 +115,88 @@
                         </div>
                     </td>
                     
-                    <%-- [수정] 주문상품 리스트 및 이미지 처리 --%>
+                    <%-- [주문상품 리스트] --%>
                     <td style="text-align: left; padding: 10px;">
                         <c:set var="items" value="${fn:split(map.product_info, '~~')}" />
+                        <c:set var="itemCount" value="${fn:length(items)}" />
                         
                         <div style="display:flex; flex-direction:column; gap:8px;">
-                            <c:forEach var="itemStr" items="${items}">
-                                <c:set var="info" value="${fn:split(itemStr, '^^')}" />
-                                <%-- info[0]:이미지, info[1]:이름, info[2]:수량, info[3]:가격 --%>
+                            
+                            <%-- 1. 첫 번째 상품 (항상 표시) --%>
+                            <c:set var="itemStr" value="${items[0]}" />
+                            <c:set var="info" value="${fn:split(itemStr, '^^')}" />
+                            
+                            <div style="display:flex; align-items:center;">
+                                <%-- 이미지 --%>
+                                <c:set var="imgVal" value="${fn:trim(info[0])}" />
+                                <c:choose>
+                                    <c:when test="${empty imgVal}">
+                                         <div style="width:40px; height:40px; background:#eee; border-radius:4px; margin-right:10px; border:1px solid #ddd; display:flex; align-items:center; justify-content:center; font-size:10px; color:#999;">No Img</div>
+                                    </c:when>
+                                    <c:when test="${fn:startsWith(imgVal, '/images')}">
+                                        <img src="${pageContext.request.contextPath}${imgVal}" width="40" height="40" style="object-fit:cover; border-radius:4px; margin-right:10px; border:1px solid #ddd; background:#f8f8f8;">
+                                    </c:when>
+                                    <c:otherwise>
+                                        <img src="${pageContext.request.contextPath}/images/productimg/${imgVal}" width="40" height="40" style="object-fit:cover; border-radius:4px; margin-right:10px; border:1px solid #ddd; background:#f8f8f8;">
+                                    </c:otherwise>
+                                </c:choose>
                                 
-                                <div style="display:flex; align-items:center; border-bottom:1px dashed #eee; padding-bottom:5px;">
-                                    
-                                    <%-- [이미지 경로 자동 보정 로직] --%>
-                                    <c:set var="imgVal" value="${fn:trim(info[0])}" />
-                                    <c:choose>
-                                        <%-- 1. DB 값이 비어있는 경우: 기본 이미지 --%>
-                                        <c:when test="${empty imgVal}">
-                                             <div style="width:40px; height:40px; background:#eee; border-radius:4px; margin-right:10px; border:1px solid #ddd; display:flex; align-items:center; justify-content:center; font-size:10px; color:#999;">No Img</div>
-                                        </c:when>
-                                        <%-- 2. /images 로 시작하는 경우 (절대경로) --%>
-                                        <c:when test="${fn:startsWith(imgVal, '/images')}">
-                                            <img src="${pageContext.request.contextPath}${imgVal}" 
-                                                 width="40" height="40" 
-                                                 style="object-fit:cover; border-radius:4px; margin-right:10px; border:1px solid #ddd; background:#f8f8f8;">
-                                        </c:when>
-                                        <%-- 3. 파일명만 있는 경우 (상대경로) -> 앞에 경로 붙여줌 --%>
-                                        <c:otherwise>
-                                            <img src="${pageContext.request.contextPath}/images/productimg/${imgVal}" 
-                                                 width="40" height="40" 
-                                                 style="object-fit:cover; border-radius:4px; margin-right:10px; border:1px solid #ddd; background:#f8f8f8;">
-                                        </c:otherwise>
-                                    </c:choose>
-                                    
-                                    <div style="flex:1;">
-                                        <div style="font-size:13px; font-weight:bold; color:#333; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:280px;">
-                                            ${info[1]}
-                                        </div>
-                                        <div style="font-size:12px; color:#666;">
-                                            <fmt:formatNumber value="${info[3]}" pattern="#,###" />원 
-                                            <span style="color:#d9534f; font-weight:bold; margin-left:5px;">(x${info[2]})</span>
-                                        </div>
+                                <div style="flex:1;">
+                                    <div style="font-size:13px; font-weight:bold; color:#333; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:280px;">
+                                        ${info[1]}
+                                    </div>
+                                    <div style="font-size:12px; color:#666;">
+                                        <fmt:formatNumber value="${info[3]}" pattern="#,###" />원 
+                                        <span style="color:#d9534f; font-weight:bold; margin-left:5px;">(x${info[2]})</span>
                                     </div>
                                 </div>
-                            </c:forEach>
+                            </div>
+
+                            <%-- 2. 나머지 상품들 (2개 이상일 때만 버튼 및 숨김 영역 생성) --%>
+                            <c:if test="${itemCount > 1}">
+                                
+                                <div id="extra_items_${map.orderno}" class="extra-products">
+                                    <c:forEach var="itemStr" items="${items}" begin="1">
+                                        <c:set var="info" value="${fn:split(itemStr, '^^')}" />
+                                        
+                                        <div style="display:flex; align-items:center; margin-top:8px;">
+                                             <c:set var="imgVal" value="${fn:trim(info[0])}" />
+                                             <c:choose>
+                                                 <c:when test="${empty imgVal}">
+                                                      <div style="width:40px; height:40px; background:#eee; border-radius:4px; margin-right:10px; border:1px solid #ddd; display:flex; align-items:center; justify-content:center; font-size:10px; color:#999;">No Img</div>
+                                                 </c:when>
+                                                 <c:when test="${fn:startsWith(imgVal, '/images')}">
+                                                     <img src="${pageContext.request.contextPath}${imgVal}" width="40" height="40" style="object-fit:cover; border-radius:4px; margin-right:10px; border:1px solid #ddd; background:#f8f8f8;">
+                                                 </c:when>
+                                                 <c:otherwise>
+                                                     <img src="${pageContext.request.contextPath}/images/productimg/${imgVal}" width="40" height="40" style="object-fit:cover; border-radius:4px; margin-right:10px; border:1px solid #ddd; background:#f8f8f8;">
+                                                 </c:otherwise>
+                                             </c:choose>
+                                             
+                                             <div style="flex:1;">
+                                                 <div style="font-size:13px; font-weight:bold; color:#555; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:280px;">
+                                                     ${info[1]}
+                                                 </div>
+                                                 <div style="font-size:12px; color:#888;">
+                                                     <fmt:formatNumber value="${info[3]}" pattern="#,###" />원 
+                                                     <span style="color:#d9534f; font-weight:bold; margin-left:5px;">(x${info[2]})</span>
+                                                 </div>
+                                             </div>
+                                        </div>
+                                    </c:forEach>
+                                </div>
+
+                                <div>
+                                    <button type="button" class="btn-toggle-admin" onclick="toggleProductList('${map.orderno}', this)">
+                                        펼치기 ▼
+                                    </button>
+                                </div>
+                            </c:if>
+
                         </div>
                     </td>
-                    
-                    <%-- [결제금액 및 총 수량] --%>
+                   
+                    <%-- 결제금액 / 총 수량 --%>
                     <td>
                         <div style="font-weight:bold; color:#333;">
                             <fmt:formatNumber value="${map.totalprice}" pattern="#,###" />원

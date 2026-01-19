@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %> 
 <% String ctxPath = request.getContextPath(); %>
 
 <!DOCTYPE html>
@@ -13,7 +14,8 @@
   <style>
     /* 1. 폰트 설정: 가독성 좋은 시스템 폰트 조합으로 일치시킴 */
     body { 
-      margin: 0; padding: 0; 
+      margin: 0;
+      padding: 0; 
       font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Malgun Gothic", "맑은 고딕", sans-serif; 
       background: #fff; color: #333;
       line-height: 1.5;
@@ -27,18 +29,19 @@
 
     /* 2. 상품 박스 레이아웃: 가로 정렬(Flex) 유지 */
     .product-box { 
-      display: flex !important; 
+      display: flex !important;
       gap: 16px; 
       padding: 18px; 
       border-top: 1px solid #f2f2f2; 
       border-bottom: 1px solid #f2f2f2; 
       align-items: center; 
-      background: #fff; 
+      background: #fff;
     }
 
     /* 이미지 박스 크기 고정 및 정렬 */
     .product-img { 
-      width: 90px; height: 90px; 
+      width: 90px;
+      height: 90px; 
       overflow: hidden; 
       border: 1px solid #eee; 
       border-radius: 8px; 
@@ -51,7 +54,7 @@
     .product-meta { flex: 1; min-width: 0; }
     .product-name { 
       margin: 0 0 8px; 
-      font-size: 15px; 
+      font-size: 15px;
       font-weight: 700; 
       color: #222; 
       line-height: 1.4;
@@ -80,9 +83,11 @@
 
     /* 리뷰 텍스트 영역 */
     #reviewContents {
-      width: 100%; height: 140px; padding: 15px; box-sizing: border-box;
+      width: 100%;
+      height: 140px; padding: 15px; box-sizing: border-box;
       border: 1px solid #e8e8e8; border-radius: 10px; font-size: 14px; line-height: 1.6; resize: none;
-      background: #fdfdfd; color: #444; outline: none;
+      background: #fdfdfd;
+      color: #444; outline: none;
     }
 
     /* 4. 버튼 스타일 */
@@ -102,8 +107,22 @@
 
     <div class="product-box">
       <div class="product-img">
-        <img src="<%= ctxPath %>${rdto.productimg}" 
-             onerror="this.src='<%= ctxPath %>/images/noimage.png'" alt="상품 이미지">
+        <%-- [수정] 관리자 페이지와 동일한 이미지 경로 분기 처리 --%>
+        <c:choose>
+            <%-- Case 1: DB 데이터에 이미 '/images' 경로가 포함된 경우 --%>
+            <c:when test="${fn:contains(rdto.productimg, '/images/')}">
+                <img src="<%= ctxPath %>${rdto.productimg}" 
+                     onerror="this.src='<%= ctxPath %>/images/no_image.png'" 
+                     alt="${rdto.productname}">
+            </c:when>
+            
+            <%-- Case 2: DB 데이터에 파일명만 있는 경우 --%>
+            <c:otherwise>
+                <img src="<%= ctxPath %>/images/productimg/${rdto.productimg}" 
+                     onerror="this.src='<%= ctxPath %>/images/no_image.png'" 
+                     alt="${rdto.productname}">
+            </c:otherwise>
+        </c:choose>
       </div>
 
       <div class="product-meta">

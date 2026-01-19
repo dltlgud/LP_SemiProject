@@ -3,7 +3,6 @@
     
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%-- 문자열 처리 함수(fn) 라이브러리 추가 --%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%
@@ -12,8 +11,17 @@
 %>
  <link rel="stylesheet" href="<%= ctxPath%>/css/index.css">
 
-  
-  <jsp:include page="header1.jsp"></jsp:include>
+  <%-- [수정] 로그인한 세션이 관리자(loginAdmin)인지 확인하여 헤더 분기 --%>
+  <c:choose>
+      <c:when test="${not empty sessionScope.loginAdmin}">
+          <%-- 관리자인 경우: WEB-INF 폴더 내의 header2.jsp 로드 --%>
+          <jsp:include page="/WEB-INF/header2.jsp" />
+      </c:when>
+      <c:otherwise>
+          <%-- 일반 회원 또는 비회원인 경우: 기존 header1.jsp 로드 --%>
+          <jsp:include page="header1.jsp" />
+      </c:otherwise>
+  </c:choose>
 
         <main>
       <section class="hero">
@@ -23,7 +31,7 @@
           <p>
  			 A carefully curated vinyl collection,<br>
   				for modern music lovers who enjoy slow, intentional listening.
-		 </p>
+          </p>
 
          <button class="main-btn" id="btnShowAll" type="button">Show all Records</button>
 
@@ -35,6 +43,7 @@
           <div class="track" id="track">
             <div class="card" style="--rot:-12deg">
               <img alt="" src="./images/main_1.jpeg">
+            
             </div>
 
             <div class="card" style="--rot:10deg">
@@ -53,6 +62,7 @@
             </div>
 
             <div class="card" style="--rot:11deg">
+            
               <img alt="" src="https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=900&q=60">
             </div>
 
@@ -64,14 +74,16 @@
 
         <div class="scrollhint">
           <span class="arr" aria-hidden="true">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+  
+             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <path d="M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               <path d="M7 15l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
              </svg>
           </span>
 
           <span>Scroll to see more</span>
-          
+      
+           
 		  <span class="arr" aria-hidden="true">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <path d="M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -79,7 +91,8 @@
             </svg>
           </span>
         </div>
-      </section>
+  
+       </section>
 	  
 	  <img class="main-line" src="<%= ctxPath%>/images/main_line.png" alt="">
 	
@@ -133,7 +146,8 @@
           <input type="hidden" name="categoryno" value="${requestScope.categoryNo}" />
       </c:if>
       <input type="hidden" name="sort" value="${requestScope.sort}" />
-     </div>
+   
+      </div>
 
     <button class="main-search__btn" type="submit">검색</button>
   </form>
@@ -161,12 +175,14 @@
         <c:if test="${not empty requestScope.newProductList}">
             <c:forEach var="np" items="${requestScope.newProductList}">
                 
-                <a class="carousel-item" href="<%= ctxPath%>/productdetail.lp?productno=${np.productno}">
+               
+                 <a class="carousel-item" href="<%= ctxPath%>/productdetail.lp?productno=${np.productno}">
                   
                   <%-- 이미지 경로 정규화 --%>
                   <c:set var="simpleFileName" value="${np.productimg}" />
                   <c:if test="${fn:contains(simpleFileName, 'images')}">
-                      <c:set var="simpleFileName" value="${fn:replace(simpleFileName, '/images/productimg/', '')}" />
+               
+                       <c:set var="simpleFileName" value="${fn:replace(simpleFileName, '/images/productimg/', '')}" />
                       <c:set var="simpleFileName" value="${fn:replace(simpleFileName, 'images/productimg/', '')}" />
                   </c:if>
                   
@@ -178,12 +194,14 @@
                       <c:if test="${np.stock == 0}">
                           <div class="sold-out-box">
                               일시품절
-                          </div>
+            
+                           </div>
                       </c:if>
                   </div>
                 
                   <div class="ci-text">
-                    <p class="ci-name">${np.productname}</p>
+           
+                     <p class="ci-name">${np.productname}</p>
                     <p class="ci-price">₩ <fmt:formatNumber value="${np.price}" pattern="#,###"/></p>
                    </div>
                 </a>
@@ -191,6 +209,7 @@
         </c:if>
     
       </div>
+ 
     </div>
 
     <button class="btn next">›</button>
@@ -206,7 +225,8 @@
              <c:when test="${not empty sessionScope.loginuser}">
                 <p>${sessionScope.loginuser.name}님의 취향을 분석하여 선별한 레코드입니다.</p>
             </c:when>
-            <c:otherwise>
+          
+              <c:otherwise>
                 <p>다양한 장르의 추천 레코드를 만나보세요.</p>
             </c:otherwise>
         </c:choose>
@@ -216,7 +236,8 @@
          <c:if test="${not empty requestScope.recommendList}">
             <c:forEach var="item" items="${requestScope.recommendList}">
                
-               <%-- [수정] 2. 추천 목록 이미지 경로 정규화 --%>
+  
+                  <%-- [수정] 2. 추천 목록 이미지 경로 정규화 --%>
                <c:set var="simpleFileName" value="${item.productimg}" />
                <c:if test="${fn:contains(simpleFileName, 'images')}">
                    <c:set var="simpleFileName" value="${fn:replace(simpleFileName, '/images/productimg/', '')}" />
@@ -227,20 +248,23 @@
                    data-album="${item.productname}"
                    data-emblem="Feel the Music, Love the Vinyl"
                    data-accent="#d0d0d0" 
-                   data-img="<%= ctxPath%>/images/productimg/${simpleFileName}"
+  
+                  data-img="<%= ctxPath%>/images/productimg/${simpleFileName}"
                    data-link="<%= ctxPath%>/productdetail.lp?productno=${item.productno}">
                </li>
             </c:forEach>
          </c:if>
          
           <c:if test="${empty requestScope.recommendList}">
+     
             <li class="lp-item"
                 data-album="Ready for Music"
                 data-emblem="Vinyl Shop"
                 data-accent="#9a9a9a"
                 data-img="<%= ctxPath%>/images/logo.png"
                 data-link="#">
-            </li>
+        
+             </li>
          </c:if>
       </div>
 
@@ -252,7 +276,8 @@
           </a>
          </div>
 
-        <div class="emblem-container">
+       
+         <div class="emblem-container">
           <div class="emblem text"></div>  
         </div>
 
@@ -265,7 +290,8 @@
       <div class="button-container">
         <button class="scroll-left nav-arrow"><span></span>Prev</button>
         <button class="scroll-right nav-arrow">Next<span></span></button>
-      </div>
+    
+       </div>
       </div>
   </section>
  
@@ -281,6 +307,7 @@
         <select id="sortSelect" onchange="sortProduct()">
             <option value="latest"     ${requestScope.sort == 'latest'     ? 'selected' : ''}>최신순</option>
             <option value="rating"     ${requestScope.sort == 'rating'     ? 'selected' : ''}>별점순</option>
+ 
             <option value="price_low"  ${requestScope.sort == 'price_low'  ? 'selected' : ''}>가격 낮은순</option>
             <option value="price_high" ${requestScope.sort == 'price_high' ? 'selected' : ''}>가격 높은순</option>
         </select>
@@ -290,10 +317,11 @@
         function sortProduct() {
             const sortVal = document.getElementById("sortSelect").value;
             const categoryNo = "${requestScope.categoryNo}"; 
+    
             const searchWord = "${requestScope.searchWord}";
             
             location.href = "<%= ctxPath%>/index.lp?categoryno=" + categoryNo + "&q=" + searchWord + "&sort=" + sortVal + "#product-list";
-		}
+        }
     </script>
     
     <div class="grid">
@@ -301,24 +329,29 @@
             <c:forEach var="p" items="${requestScope.productList}">
                 <div class="product">
                     <a href="<%= ctxPath%>/productdetail.lp?productno=${p.productno}">
-                        
+                       
+ 
                         <%-- [수정] 3. 스토어 목록 이미지 경로 정규화 --%>
                         <c:set var="simpleFileName" value="${p.productimg}" />
                         <c:if test="${fn:contains(simpleFileName, 'images')}">
-                            <c:set var="simpleFileName" value="${fn:replace(simpleFileName, '/images/productimg/', '')}" />
+              
+                               <c:set var="simpleFileName" value="${fn:replace(simpleFileName, '/images/productimg/', '')}" />
                             <c:set var="simpleFileName" value="${fn:replace(simpleFileName, 'images/productimg/', '')}" />
                         </c:if>
-                        <img src="<%= ctxPath%>/images/productimg/${simpleFileName}" alt="${p.productname}">
+                        
+ <img src="<%= ctxPath%>/images/productimg/${simpleFileName}" alt="${p.productname}">
 						
 						<c:if test="${p.stock == 0}">
                             <div class="sold-out-box">
                                 일시품절
                             </div>
+     
                         </c:if>
                     </a>
                     <p class="main-product-name">${p.productname}</p>
                     <p class="price">
-                        ₩ <fmt:formatNumber value="${p.price}" pattern="#,###"/>
+                   
+                      ₩ <fmt:formatNumber value="${p.price}" pattern="#,###"/>
                      </p>
                 </div>
             </c:forEach>
@@ -331,7 +364,8 @@
 					if (history.replaceState) {
                         var cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + window.location.search;
  						window.history.replaceState({path:cleanUrl}, '', cleanUrl);
-                    }
+                  
+                   }
 
                     var searchInput = document.querySelector("input[name='q']");
 					if(searchInput) {
@@ -339,6 +373,7 @@
  						searchInput.select();
                     }
                 </script>
+             
                 등록된 상품이 없습니다.
 			</div>
         </c:if>
@@ -362,6 +397,7 @@
     .main-popup {
         position: absolute;
         top: 50%;
+   
         left: 50%;
         width: 380px;
         max-width: 90vw; /* 모바일 대응 */
@@ -371,13 +407,15 @@
         display: none; 
         font-family: 'Pretendard', sans-serif;
         z-index: 9999;
-        overflow: hidden; /* 내부 요소가 둥근 모서리 넘지 않게 */
+    
+         overflow: hidden; /* 내부 요소가 둥근 모서리 넘지 않게 */
         animation: popupFadeIn 0.4s ease-out; /* 등장 애니메이션 */
     }
 
     @keyframes popupFadeIn {
         from { opacity: 0; transform: translate(-50%, -45%); }
-        to { opacity: 1; transform: translate(-50%, -50%); }
+        to { opacity: 1; transform: translate(-50%, -50%);
+     }
     }
 
     /* 팝업 내용 영역 */
@@ -410,7 +448,7 @@
         justify-content: center;
         margin: 0 auto 16px;
         font-size: 24px;
-    }
+     }
 
     /* 타이틀 */
     .popup-header {
@@ -438,7 +476,7 @@
         justify-content: space-between;
         align-items: center;
         border-top: 1px solid #eee;
-    }
+     }
 
     /* 버튼 스타일 */
     .btn-close-today {
@@ -449,8 +487,9 @@
         background: none;
         border: none;
         padding: 0;
-    }
-    .btn-close-today:hover { color: #555; text-decoration: underline; }
+     }
+    .btn-close-today:hover { color: #555; text-decoration: underline;
+     }
 
     .btn-close {
         font-size: 14px;
@@ -462,65 +501,83 @@
         padding: 0;
         transition: opacity 0.2s;
     }
-    .btn-close:hover { opacity: 0.7; }
+    .btn-close:hover { opacity: 0.7;
+     }
 
     /* 겹침 처리 & 위치 미세 조정 */
     #popup_delivery {
-        z-index: 10000; 
+        z-index: 10000;
         transform: translate(-52%, -52%); /* 살짝 왼쪽 위 */
     }
 
     #popup_album {
-        z-index: 9999; 
+        z-index: 9999;
         transform: translate(-48%, -48%); /* 살짝 오른쪽 아래 */
     }
     
     .popup-link-btn {
-        display: block;           /* 한 줄 꽉 차게 */
+        display: block;
+        /* 한 줄 꽉 차게 */
         width: 100%;
-        margin-top: 20px;         /* 위쪽 설명글과 간격 */
+        margin-top: 20px;
+        /* 위쪽 설명글과 간격 */
         padding: 12px 0;
-        background-color: #222;   /* 짙은 회색/검정 배경 */
-        color: #fff;              /* 흰색 글씨 */
+        background-color: #222;
+        /* 짙은 회색/검정 배경 */
+        color: #fff;
+        /* 흰색 글씨 */
         text-align: center;
-        border-radius: 6px;       /* 모서리 둥글게 */
-        text-decoration: none;    /* 밑줄 제거 */
+        border-radius: 6px;
+        /* 모서리 둥글게 */
+        text-decoration: none;
+        /* 밑줄 제거 */
         font-weight: 600;
         font-size: 14px;
         transition: background 0.3s;
-    }
+     }
 
     .popup-link-btn:hover {
-        background-color: #000;   /* 마우스 올리면 더 진하게 */
+        background-color: #000;
+        /* 마우스 올리면 더 진하게 */
         color: #fff;
-    }
+     }
     
     /* [수정] 이미지를 감싸는 a태그 (기준점 역할) */
 	.product > a {
 	    display: block;
-	    position: relative; /* 중요: 이 박스를 기준으로 안쪽 요소들이 배치됨 */
-	    overflow: hidden;   /* 이미지가 둥글게 깎이면 덮개도 같이 깎이도록 설정 */
-	    border-radius: 8px; /* 기존 이미지 둥근 모서리와 동일하게 */
+        position: relative; /* 중요: 이 박스를 기준으로 안쪽 요소들이 배치됨 */
+	    overflow: hidden;
+        /* 이미지가 둥글게 깎이면 덮개도 같이 깎이도록 설정 */
+	    border-radius: 8px;
+        /* 기존 이미지 둥근 모서리와 동일하게 */
 	}
 	
 	/* [추가] 일시품절 덮개 스타일 */
 	.sold-out-box {
-	    position: absolute; /* 기준점(a태그) 안에서 붕 띄움 */
+	    position: absolute;
+        /* 기준점(a태그) 안에서 붕 띄움 */
 	    top: 0;
 	    left: 0;
-	    width: 100%;       /* 너비 꽉 채움 */
-	    height: 100%;      /* 높이 꽉 채움 */
+	    width: 100%;
+        /* 너비 꽉 채움 */
+	    height: 100%;
+        /* 높이 꽉 채움 */
 	    
-	    background-color: rgba(0, 0, 0, 0.6); /* 검정색 배경 (60% 투명) */
-	    color: #ffffff;    /* 글자색 흰색 */
+	    background-color: rgba(0, 0, 0, 0.6);
+        /* 검정색 배경 (60% 투명) */
+	    color: #ffffff;
+        /* 글자색 흰색 */
 	    
-	    display: flex;     /* 글자를 정중앙에 놓기 위함 */
+	    display: flex;
+        /* 글자를 정중앙에 놓기 위함 */
 	    justify-content: center;
 	    align-items: center;
 	    
-	    font-size: 18px;   /* 글자 크기 */
+	    font-size: 18px;
+        /* 글자 크기 */
 	    font-weight: 700;  /* 굵게 */
-	    z-index: 10;       /* 이미지보다 위에 올라오도록 */
+	    z-index: 10;
+        /* 이미지보다 위에 올라오도록 */
 	}
 </style>
 
@@ -535,7 +592,8 @@
         </div>
         
         <p class="popup-desc">
-            주문량 급증으로 인해 배송이<br>
+  
+             주문량 급증으로 인해 배송이<br>
             평소보다 <strong>2~3일 지연</strong>되고 있습니다.<br>
             양해 부탁드립니다.
         </p>
@@ -555,6 +613,7 @@
             NEW ALBUM
         </div>
         
+ 
         <p class="popup-desc">
             <strong>Moby - Reprise</strong><br>
             기다리시던 한정판 바이닐이 입고되었습니다.<br>
@@ -575,29 +634,30 @@
     $(document).ready(function(){
         // 페이지 로드 시 쿠키 확인
         checkPopupCookie('popup_delivery');
-        checkPopupCookie('popup_album');
+   
+         checkPopupCookie('popup_album');
     });
-
     function checkPopupCookie(popupId) {
         if (getCookie(popupId) != "done") {
-            $("#" + popupId).fadeIn(300); // 부드럽게 등장
+            $("#" + popupId).fadeIn(300);
+            // 부드럽게 등장
         }
     }
 
     function closePopup(popupId) {
         $("#" + popupId).fadeOut(200);
-    }
+     }
 
     function closePopupToday(popupId) {
         setCookie(popupId, "done", 1); 
         $("#" + popupId).fadeOut(200);
-    }
+     }
 
     function setCookie(name, value, expiredays) {
         var todayDate = new Date();
         todayDate.setDate(todayDate.getDate() + expiredays); 
         document.cookie = name + "=" + escape(value) + "; path=/; expires=" + todayDate.toGMTString() + ";";
-    }
+     }
 
     function getCookie(name) {
         var nameOfCookie = name + "=";

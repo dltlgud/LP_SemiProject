@@ -3,16 +3,21 @@ document.addEventListener("DOMContentLoaded", function () {
   let index = 0;
 
   const track = document.querySelector(".carousel-track");
-  const items = document.querySelectorAll(".carousel-track img");
+  
+  const items = document.querySelectorAll(".carousel-item");
 
   if (!track || items.length === 0) return;
 
-  // ⭐ 실제 이미지 너비 계산 (margin 포함)
-  const itemWidth = items[0].getBoundingClientRect().width + 20;
+  const itemWidth = 260; 
 
-  const maxIndex = items.length - 3; // 한 화면에 3장 보일 때
+  const visibleItems = 4;
+  
+  let maxIndex = items.length - visibleItems;
+
+  if (maxIndex < 0) maxIndex = 0;
 
   document.querySelector(".next").addEventListener("click", () => {
+    // maxIndex까지만 index가 증가하도록 제한
     if (index < maxIndex) {
       index++;
       track.style.transform = `translateX(-${index * itemWidth}px)`;
@@ -26,4 +31,3 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
-

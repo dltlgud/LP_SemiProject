@@ -130,7 +130,7 @@
 
  
 <div class="main-search">
-  <form class="main-search__form" role="search" action="<%= ctxPath%>/index.lp#product-list" method="get">
+  <form class="main-search__form" role="search" action="<%= ctxPath%>/index.lp" method="get">
     <div class="main-search__field">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"
@@ -322,6 +322,20 @@
             
             location.href = "<%= ctxPath%>/index.lp?categoryno=" + categoryNo + "&q=" + searchWord + "&sort=" + sortVal + "#product-list";
         }
+        window.addEventListener('load', function() {
+            <c:if test="${not empty requestScope.productList}">
+                
+                <c:if test="${not empty requestScope.searchWord}">
+                    
+                    const target = document.getElementById("product-list");
+                    if(target) {
+                        
+                        target.scrollIntoView({behavior: "smooth"});
+                    }
+                    
+                </c:if>
+            </c:if>
+        });
     </script>
     
     <div class="grid">
@@ -361,21 +375,23 @@
             <div style="width:100%; text-align:center; padding: 50px;">
                 <script type="text/javascript">
                     alert("검색어에 해당하는 제품이 없습니다.");
-					if (history.replaceState) {
-                        var cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + window.location.search;
- 						window.history.replaceState({path:cleanUrl}, '', cleanUrl);
-                  
-                   }
+                    
+                    if (history.replaceState) {
+                        
+                        var cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                        window.history.replaceState({path:cleanUrl}, '', cleanUrl);
+                    }
 
+                    
                     var searchInput = document.querySelector("input[name='q']");
-					if(searchInput) {
+                    if(searchInput) {
+                        searchInput.value = ""; // 검색어 비우기
                         searchInput.focus();
- 						searchInput.select();
                     }
                 </script>
-             
+                
                 등록된 상품이 없습니다.
-			</div>
+            </div>
         </c:if>
     </div>
 

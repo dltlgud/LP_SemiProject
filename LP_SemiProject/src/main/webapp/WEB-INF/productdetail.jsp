@@ -81,7 +81,7 @@
 
             <div class="quantity">
                 <button type="button" onclick="changeQty(-1)">−</button>
-                <span id="qty">1</span>
+                <span id="qty">${pDto.stock > 0 ? 1 : 0}</span>
                 <button type="button" onclick="changeQty(1)">+</button>
              </div>
 
@@ -250,7 +250,7 @@
     
 <script>
     const ctxPath = "<%= request.getContextPath() %>";
-    let qty = 1;
+    let qty = ${pDto.stock > 0 ? 1 : 0};
 
     const unitPrice = ${pDto.price};
     const unitPoint = ${pDto.point};
@@ -260,31 +260,48 @@
     const loginUrl = "<%= ctxPath%>/login/login.lp";
 
     function changeQty(num) {
-      qty += num;
-      if (qty < 1) qty = 1;
+        const stock = ${pDto.stock};
 
-      const stock = ${pDto.stock};
-      if (qty > stock) {
-        alert("죄송합니다. 재고가 " + stock + "개 남았습니다.");
-        qty = stock;
-      }
+        // 재고가 0일 때
+        if (stock <= 0) {
+            // 수량은 0으로 고정
+            qty = 0;
+            document.getElementById("qty").innerText = 0;
+            
+            // 가격과 포인트는 1개 기준 값 고정
+            document.getElementById("totalPrice").innerText = "₩ " + unitPrice.toLocaleString();
+            document.getElementById("totalPoint").innerText = unitPoint.toLocaleString();
+            
+            // 더 이상 계산하지 않고 함수 종료
+            return; 
+        }
+        
+	    qty += num;
+	    if (qty < 1){ 
+	    	qty = 1;
+	    }	
+	      
+	    if (qty > stock) {
+	        alert("죄송합니다. 재고가 " + stock + "개 남았습니다.");
+	        qty = stock;
+	    }
 
-      document.getElementById("qty").innerText = qty;
+      	document.getElementById("qty").innerText = qty;
 
-      const total = unitPrice * qty;
-      document.getElementById("totalPrice").innerText = "₩ " + total.toLocaleString();
+      	const total = unitPrice * qty;
+      	document.getElementById("totalPrice").innerText = "₩ " + total.toLocaleString();
+      	
+      	const totalPoint = unitPoint * qty;
+      	document.getElementById("totalPoint").innerText = totalPoint.toLocaleString();
+
+      	const c = document.getElementById("cartQty");
+      	if (c) c.value = qty;
+
+      	const u = document.getElementById("updateQty");
+      	if (u) u.value = qty;
       
-      const totalPoint = unitPoint * qty;
-      document.getElementById("totalPoint").innerText = totalPoint.toLocaleString();
-
-      const c = document.getElementById("cartQty");
-      if (c) c.value = qty;
-
-      const u = document.getElementById("updateQty");
-      if (u) u.value = qty;
-      
-      const b = document.getElementById("buyQty");
-      if (b) b.value = qty;
+      	const b = document.getElementById("buyQty");
+      	if (b) b.value = qty;
     }
 
     // 찜하기 (AJAX 비동기 통신)

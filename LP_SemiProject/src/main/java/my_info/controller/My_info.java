@@ -35,28 +35,13 @@ public class My_info extends AbstractController {
         HttpSession session = request.getSession();
         MemberDTO loginuser = (MemberDTO) session.getAttribute("loginuser");
         
-        
+      
 
-     // 1. 로그인 체크 및 휴면 여부 체크
-        Boolean isLogin = (Boolean) session.getAttribute("isLogin");
-
-        // [수정 포인트]
-        if (isLogin == null || !isLogin) {
-            String message = "";
-            String loc = "";
-
-            // 세션에 임시 아이디(idle_userid)가 있다는 건 휴면 상태라는 뜻
-            String idle_userid = (String) session.getAttribute("idle_userid");
-
-            if (idle_userid != null) {
-                // 1) 휴면 상태인 사용자가 마이페이지를 누른 경우
-                message = "휴면 상태입니다. 비밀번호 변경 후 이용 가능합니다.";
-                loc = request.getContextPath() + "/login/idle_release.lp"; // 휴면해제 페이지로 가이드
-            } else {
-                // 2) 아예 로그인을 안 한 사용자인 경우
-                message = "로그인 후 이용 가능합니다.";
-                loc = request.getContextPath() + "/login/login.lp"; // 로그인 페이지로 이동
-            }
+         //로그인 상태가 아니거나 휴면일 경우 
+        if (loginuser==null) {
+            String message = "로그인 후 이용 가능합니다.";
+            String loc = request.getContextPath() + "/login/login.lp";
+             
             
             request.setAttribute("message", message);
             request.setAttribute("loc", loc);

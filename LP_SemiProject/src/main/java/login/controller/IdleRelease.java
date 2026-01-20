@@ -21,12 +21,13 @@ public class IdleRelease extends AbstractController {
         HttpSession session = request.getSession();
         
         String idle_userid = (String) session.getAttribute("idle_userid");
-        Boolean isLogin = (Boolean) session.getAttribute("isLogin");
-       //이미 로그인 된 사람 메인페이지로 이동
-        if (isLogin != null && isLogin) {
-        	request.setAttribute("message", "잘못된 접근입니다.");
+        MemberDTO loginuser_session = (MemberDTO) session.getAttribute("loginuser"); // 추가
+
+        // 2. 이미 로그인 된 사람 메인페이지로 이동 
+        if (loginuser_session != null) {
+            request.setAttribute("message", "이미 로그인된 상태입니다.");
             request.setAttribute("loc", request.getContextPath() + "/index.lp");
-        	
+            
             super.setRedirect(false);
             super.setViewPage("/WEB-INF/msg.jsp");
             return;
@@ -84,7 +85,6 @@ public class IdleRelease extends AbstractController {
                 loginuser.setIdle(0); 
                 loginuser.setRequirePwdChange(false);
                 session.setAttribute("loginuser", loginuser);
-                session.setAttribute("isLogin", true);
                 session.removeAttribute("idle_userid");
                 
                 message = "비밀번호가 성공적으로 변경되어 휴면 상태가 해제되었습니다.";

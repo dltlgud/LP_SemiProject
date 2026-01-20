@@ -24,19 +24,19 @@ public class Login extends AbstractController {
         // 0. 이미 로그인된 사용자가 접근할 경우 메인으로 이동
         HttpSession session = request.getSession();
         MemberDTO loginuser_session = (MemberDTO) session.getAttribute("loginuser");
-        Boolean isLogin = (Boolean) session.getAttribute("isLogin");
-
-        //로그인값이 null이 아니고 로그인값이 참일 경우에는 메인으로 이동
-        if (loginuser_session != null && isLogin != null && isLogin) {
+       
+   
+        if (loginuser_session != null) {
             setRedirect(true);
             setViewPage(request.getContextPath() + "/index.lp");
             return; 
         }
         
+        // 1. GET 방식일 때 (로그인 화면 보여주기)
         if ("GET".equalsIgnoreCase(method)) {
             setRedirect(false);
             setViewPage("/WEB-INF/login/login.jsp");
-            return;
+            return; 
         }
 
         // ===== POST =====
@@ -61,9 +61,8 @@ public class Login extends AbstractController {
         	if(loginuser.getIdle() == 1 || loginuser.getLastLoginGap() >= 12) {
             	
         		// [휴면 상태]->idle_release로 이동 
-                // 객체 전체(loginuser)를 세션에 담지 않고 아이디만 저장합니다.
                 session.setAttribute("idle_userid", userid);
-                session.setAttribute("isLogin", false);
+               
                
                 if(loginuser.getIdle()==0) {
                 mdao.updateIdle(userid);
@@ -93,7 +92,7 @@ public class Login extends AbstractController {
             //  5. 세션 저장
           
             session.setAttribute("loginuser", loginuser);
-            session.setAttribute("isLogin", true);
+            
 
             //  6. 로그인 성공 후 비밀번호 변경 안내
             if (loginuser.isRequirePwdChange()) {

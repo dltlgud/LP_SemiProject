@@ -26,13 +26,13 @@ function goLogin_Cookies(){
 	const pwd = $('input#loginPwd').val().trim();
 
 	if(userid == "") {
-		alert("아이디를 입력하세요!!");
+		alert("아이디를 입력하세요.");
 		$('input#loginUserid').val("").focus();
 		return;
 	}
 	
 	if(pwd == "") {
-		alert("암호를 입력하세요!!");
+		alert("암호를 입력하세요.");
 		$('input#loginPwd').val("").focus();
 		return;
 	}

@@ -29,11 +29,7 @@ public class SendMapSms extends AbstractController {
 	        String imagePath = rootPath + "images" + java.io.File.separator + imageName;
 	        java.io.File file = new java.io.File(imagePath);
 
-	        System.out.println("--- [발송 전 데이터 체크] ---");
-	        System.out.println("수신번호: " + mobile);
-	        System.out.println("이미지경로: " + imagePath);
-	        System.out.println("파일존재여부: " + file.exists());
-	        System.out.println("--------------------------");
+	        
 
 	        // 2. CoolSMS 설정
 	        String api_key = "NCSIGYCBOJDBFDGX";
@@ -60,7 +56,7 @@ public class SendMapSms extends AbstractController {
 	        try {
 	            // [수정] 형변환을 org.json.simple.JSONObject로 합니다.
 	            JSONObject result = (JSONObject) coolsms.send(params); 
-	            System.out.println("DEBUG: CoolSMS 응답 상세 -> " + result.toString());
+	           
 
 	            // org.json.simple은 get("key") 방식을 사용합니다.
 	            // 성공 건수가 있는지 확인 (Long 타입으로 반환될 수 있음)

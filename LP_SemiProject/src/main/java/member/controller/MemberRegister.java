@@ -77,8 +77,7 @@ public class MemberRegister extends AbstractController {
 				    // 가입할 때 사용한 member 객체(MemberDTO)를 그대로 활용합니다.
 				    session.setAttribute("loginuser", member); 
 				 
-				    // 2-1 로그인 상태임을 증명하는 플래그 저장 
-				    session.setAttribute("isLogin", true);
+			
 				    // 3. 로그인 기록 남기기
 				    String clientip = request.getRemoteAddr();
 				    mdao.insertLoginHistory(member.getUserid(), clientip);

@@ -90,6 +90,17 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
 <script>
+	
+	let currentPage = "${requestScope.currentShowPageNo}";
+	if(!currentPage || currentPage === "") {
+	    currentPage = "${param.currentShowPageNo}";
+	}
+	if(!currentPage || currentPage === "") {
+	    currentPage = 1;
+	} else {
+	    currentPage = parseInt(currentPage);
+	}
+	
     function goPage(pageNo) {
         sessionStorage.setItem("wishScrollPos", window.scrollY);
         // 페이지 이동
@@ -116,13 +127,15 @@
             dataType: "json",
             success: function(json) {
                 if(json.isSuccess) {
-                    const targetItem = $("#item-" + productNo);
-                    targetItem.remove(); 
-                    
-                    const remainingItems = $("#wishContainer").find(".wish-item").length;
+                	const currentItems = $(".wish-item").length;
 
-                    if(remainingItems === 0) {
-                        location.reload();
+                    // 이전 페이지로 이동
+                    if(currentItems === 1 && currentPage > 1) {
+                        goPage(currentPage - 1);
+                    } 
+                    // 현재 페이지 새로고침 (데이터 당겨옴)
+                    else {
+                        goPage(currentPage);
                     }
                 } 
                 else {

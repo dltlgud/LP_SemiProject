@@ -369,7 +369,7 @@ $(function () {
 
       const merchantUid = "ord_" + Date.now();
       const IMP = window.IMP;
-      IMP.init("imp66663353");
+      IMP.init("");
 
       IMP.request_pay({
         pg: "html5_inicis",

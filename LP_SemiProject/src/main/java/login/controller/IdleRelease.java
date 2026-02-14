@@ -21,9 +21,9 @@ public class IdleRelease extends AbstractController {
         HttpSession session = request.getSession();
         
         String idle_userid = (String) session.getAttribute("idle_userid");
-        MemberDTO loginuser_session = (MemberDTO) session.getAttribute("loginuser"); // 추가
+        MemberDTO loginuser_session = (MemberDTO) session.getAttribute("loginuser"); 
 
-        // 2. 이미 로그인 된 사람 메인페이지로 이동 
+        //1.이미 로그인 된 사람 메인페이지로 이동 
         if (loginuser_session != null) {
             request.setAttribute("message", "이미 로그인된 상태입니다.");
             request.setAttribute("loc", request.getContextPath() + "/index.lp");
@@ -34,7 +34,7 @@ public class IdleRelease extends AbstractController {
         }
         
         
-        //로그인조차 하지 않은 경우 메인페이지로 이동
+        //2.로그인조차 하지 않은 경우 메인페이지로 이동
         if (idle_userid == null) {
             request.setAttribute("message", "잘못된 접근입니다. 로그인을 먼저 하세요.");
             request.setAttribute("loc", request.getContextPath() + "/login/login.lp");
@@ -44,14 +44,14 @@ public class IdleRelease extends AbstractController {
             return;
         }
      
-        // 2️ GET 방식: 비밀번호 변경(휴면해제) 화면 보여주기
+        // 3. GET 방식: 비밀번호 변경(휴면해제) 화면 보여주기
         if ("GET".equalsIgnoreCase(method)) {
         	super.setRedirect(false);
             super.setViewPage("/WEB-INF/login/idle_release.jsp"); 
             return; 
         }
 
-        // 3️ POST 방식: 실제 비밀번호 변경 로직 수행
+        // 4. POST 방식: 실제 비밀번호 변경 로직 수행
         if ("POST".equalsIgnoreCase(method)) {
             
             String userid = idle_userid;
@@ -69,7 +69,7 @@ public class IdleRelease extends AbstractController {
             }
 
             String clientip = request.getRemoteAddr(); //사용자 주소의 ip주소 
-            int result = mdao.changePassword(userid, newPwd, clientip);
+            int result = mdao.changePassword(userid, newPwd, clientip, true);
             
             String message = "";
             String loc = "";

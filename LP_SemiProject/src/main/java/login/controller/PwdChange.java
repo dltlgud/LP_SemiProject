@@ -15,7 +15,7 @@ public class PwdChange extends AbstractController {
         
         String method = request.getMethod(); // GET 또는 POST
         
-        // 1. 로그인 여부 체크 (가장 먼저 수행)
+        // 1. 로그인 여부 체크 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("loginuser") == null) {
             request.setAttribute("message", "로그인이 필요한 서비스입니다.");
@@ -42,9 +42,27 @@ public class PwdChange extends AbstractController {
             String newPwd = request.getParameter("newPwd");
             String newPwdCheck = request.getParameter("newPwdCheck");
 
-            // 서버측 최소 검증
-            if (newPwd == null || newPwdCheck == null || !newPwd.equals(newPwdCheck)) {
-                request.setAttribute("message", "비밀번호가 일바르지 않거나 일치하지 않습니다.");
+           // 필수 입력값 체크
+            if (newPwd == null || newPwd.trim().isEmpty()) {
+            	request.setAttribute("message", "새 비밀번호를 입력하세요.");
+                request.setAttribute("loc", "javascript:history.back()");
+                setRedirect(false);
+                setViewPage("/WEB-INF/msg.jsp");
+                return;
+            }
+
+            //비밀번호 확인 입력값 체크
+            if (newPwdCheck == null || newPwdCheck.trim().isEmpty()) {
+            	request.setAttribute("message", "비밀번호 확인란을 입력하세요.");
+                request.setAttribute("loc", "javascript:history.back()");
+                setRedirect(false);
+                setViewPage("/WEB-INF/msg.jsp");
+                return;
+            }
+
+            //일치 여부 체크
+            if (!newPwd.equals(newPwdCheck)) {
+            	request.setAttribute("message", "입력하신 두 비밀번호가 일치하지 않습니다.");
                 request.setAttribute("loc", "javascript:history.back()");
                 setRedirect(false);
                 setViewPage("/WEB-INF/msg.jsp");
@@ -52,7 +70,7 @@ public class PwdChange extends AbstractController {
             }
 
             String clientip = request.getRemoteAddr();
-            int result = mdao.changePassword(userid, newPwd, clientip);
+            int result = mdao.changePassword(userid, newPwd, clientip,false);
             
             if(result == -1) {
                 request.setAttribute("message", "기존 비밀번호와 동일한 비밀번호는 사용할 수 없습니다.");

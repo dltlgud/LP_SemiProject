@@ -32,7 +32,7 @@ public interface MemberDAO {
    void insertLoginHistory(String userid, String clientip)throws SQLException;
    
    //비밀번호 변경하기 =>휴면상태/비밀번호 변경3개월 이상/비밀번호 재설정 
-   int changePassword(String userid, String newPwd, String clientip) throws SQLException;
+  	int changePassword(String userid, String newPwd, String clientip, boolean isLoginRecordNeeded) throws SQLException;
    
    // 아이디 찾기(성명, 이메일을 입력받아서 해당 사용자의 아이디를 알려준다)  
 	String findUserid(Map<String, String> paraMap) throws SQLException;
@@ -64,6 +64,7 @@ public interface MemberDAO {
 	ReviewDTO selectOneReview(int int1)throws SQLException;
 	//리뷰삭제하기
 	int deleteReview(String reviewno)throws SQLException;
+	 
 	
 	
 	

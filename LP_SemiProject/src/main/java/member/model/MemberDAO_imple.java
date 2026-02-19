@@ -96,7 +96,7 @@ public class MemberDAO_imple implements MemberDAO {
 
 	
 	//==================================================================================//
-	// 비밀번호 중복검사 (tbl_member 테이블에서 email이 존재하면 true 를 리턴해주고, email이 존재하지 않으면 false 를 리턴한다)
+	// 이메일 중복검사 (tbl_member 테이블에서 email이 존재하면 true 를 리턴해주고, email이 존재하지 않으면 false 를 리턴한다)
 	@Override
 	public boolean emailDuplicateCheck(String email) throws SQLException {
 	boolean isExists = false;
@@ -126,44 +126,44 @@ public class MemberDAO_imple implements MemberDAO {
 	}//end of public boolean emailDuplicateCheck(String email) throws SQLException
 
 	//====================================================================================//
-			// 회원가입을 해주는 메서드(tbl_member 테이블에 insert)
-				@Override
-				public int registerMember(MemberDTO member) throws SQLException {
-					
-					int result = 0;
-					
-					try {
-						  conn = ds.getConnection();
-						  
-						  String sql = " insert into tbl_member( userseq,userid, pwd, name, email, mobile, gender, birthday, "
-						  		     + " postcode ,address ,detailaddress ,extraaddress ) "  
-						  		     + " values( seq_userseq.nextval, ?, ?, ?, ?, ?, ?, ? ,? ,? ,? ,? ) "; 
-						  
-						  pstmt = conn.prepareStatement(sql); 
-						  
-						  pstmt.setString(1, member.getUserid());
-						  pstmt.setString(2, Sha256.encrypt(member.getPwd()) ); // 암호를 SHA256 알고리즘으로 단방향 암호화 시킨다.
-						  pstmt.setString(3, member.getName());
-						  pstmt.setString(4, aes.encrypt(member.getEmail()) );  // 이메일을 AES256 알고리즘으로 양방향 암호화 시킨다.
-						  pstmt.setString(5, aes.encrypt(member.getMobile()) ); // 휴대폰을 AES256 알고리즘으로 양방향 암호화 시킨다.
-						  pstmt.setString(6, member.getGender());
-						  pstmt.setString(7, member.getBirthday());
-						  
-						  pstmt.setString(8, member.getPostcode());
-						  pstmt.setString(9, member.getAddress());
-						  pstmt.setString(10, member.getDetailaddress());
-						  pstmt.setString(11, member.getExtraaddress());
-						  
-						  result = pstmt.executeUpdate();
-						  
-					} catch(GeneralSecurityException | UnsupportedEncodingException e) {
-						  e.printStackTrace();
-					} finally {
-						close();
-					}
-					
-					return result;
-				}// end of public int registerMember(MemberDTO member) throws SQLException-------*/
+	// 회원가입을 해주는 메서드(tbl_member 테이블에 insert)
+		@Override
+		public int registerMember(MemberDTO member) throws SQLException {
+			
+			int result = 0;
+			
+			try {
+				  conn = ds.getConnection();
+				  
+				  String sql = " insert into tbl_member( userseq,userid, pwd, name, email, mobile, gender, birthday, "
+				  		     + " postcode ,address ,detailaddress ,extraaddress ) "  
+				  		     + " values( seq_userseq.nextval, ?, ?, ?, ?, ?, ?, ? ,? ,? ,? ,? ) "; 
+				  
+				  pstmt = conn.prepareStatement(sql); 
+				  
+				  pstmt.setString(1, member.getUserid());
+				  pstmt.setString(2, Sha256.encrypt(member.getPwd()) ); // 암호를 SHA256 알고리즘으로 단방향 암호화 시킨다.
+				  pstmt.setString(3, member.getName());
+				  pstmt.setString(4, aes.encrypt(member.getEmail()) );  // 이메일을 AES256 알고리즘으로 양방향 암호화 시킨다.
+				  pstmt.setString(5, aes.encrypt(member.getMobile()) ); // 휴대폰을 AES256 알고리즘으로 양방향 암호화 시킨다.
+				  pstmt.setString(6, member.getGender());
+				  pstmt.setString(7, member.getBirthday());
+				  
+				  pstmt.setString(8, member.getPostcode());
+				  pstmt.setString(9, member.getAddress());
+				  pstmt.setString(10, member.getDetailaddress());
+				  pstmt.setString(11, member.getExtraaddress());
+				  
+				  result = pstmt.executeUpdate();
+				  
+			} catch(GeneralSecurityException | UnsupportedEncodingException e) {
+				  e.printStackTrace();
+			} finally {
+				close();
+			}
+			
+			return result;
+		}// end of public int registerMember(MemberDTO member) throws SQLException-------*/
 		
 
 		//=========================================================================
@@ -302,20 +302,20 @@ public class MemberDAO_imple implements MemberDAO {
 		}
 
 
-
-   // 비밀번호 재설정 + 휴면 해제 + 로그인 기록===============================================================
+		// ============================================================================================
+		// 비밀번호 재설정 + 휴면 해제 + 로그인 기록 (선택적)
 		@Override
-		public int changePassword(String userid, String newPwd, String clientip) throws SQLException {
+		// ★ 파라미터 마지막에 boolean isLoginRecordNeeded 추가
+		public int changePassword(String userid, String newPwd, String clientip, boolean isLoginRecordNeeded) throws SQLException {
 
 		    int result = 0;
 
 		    try {
-		    	conn = ds.getConnection();
-		    	conn.setAutoCommit(false);
-
+		        conn = ds.getConnection();
+		        conn.setAutoCommit(false);
 
 		        // 1️ 기존 비밀번호와 동일한지 검사
-		        String sql = "SELECT pwd FROM tbl_member WHERE userid = ?";
+		        String sql = " SELECT pwd FROM tbl_member WHERE userid = ? ";
 		        pstmt = conn.prepareStatement(sql);
 		        pstmt.setString(1, userid);
 		        rs = pstmt.executeQuery();
@@ -329,44 +329,51 @@ public class MemberDAO_imple implements MemberDAO {
 		            String newPwdEnc = Sha256.encrypt(newPwd);
 
 		            if (oldPwd.equals(newPwdEnc)) {
-		                return -1; //  기존 비밀번호와 동일
-		            }
 		            
+		            	return -1; // 기존 비밀번호와 동일하면 즉시 리턴 (-1은 커밋/롤백 대상 아님)
+		            }
 		        }
 
-		        // 2️. 비밀번호 변경 + 휴면 해제
-		        sql = "UPDATE tbl_member "
+		        // 2️. 비밀번호 변경 + 휴면 해제 (UPDATE는 무조건 실행)
+		        sql = " UPDATE tbl_member "
 		            + " SET pwd = ?, "
 		            + "     lastpwdchangedate = SYSDATE, "
-		            + "     idle = 0 "
-		            + " WHERE userid = ?";
+		            + "     idle = 0 " // 휴면 해제 포함
+		            + " WHERE userid = ? ";
 
 		        pstmt = conn.prepareStatement(sql);
 		        pstmt.setString(1, Sha256.encrypt(newPwd));
 		        pstmt.setString(2, userid);
 
-		        result = pstmt.executeUpdate(); // 1이면 성공
+		        result = pstmt.executeUpdate(); // 성공하면 1
 
-		        // 3️. 로그인 기록 INSERT 
+		        // 3️. 로그인 기록 INSERT (조건부 실행)
 		        if (result == 1) {
-		        	if(pstmt != null) { pstmt.close(); pstmt = null; }
-		            sql = "INSERT INTO tbl_loginhistory "
-		                + " (historyno, fk_userid, logindate, clientip) "
-		                + " VALUES (seq_historyno.nextval, ?, SYSDATE, ?)";
-
-		            pstmt = conn.prepareStatement(sql);
-		            pstmt.setString(1, userid);
-		            pstmt.setString(2, clientip);
-
-		            pstmt.executeUpdate();
 		            
+		            // ★ 수정 포인트: 플래그가 true일 때만 로그인 기록을 남김 (휴면해제 시)
+		            if (isLoginRecordNeeded) {
+		                if(pstmt != null) { pstmt.close(); pstmt = null; }
+		                
+		                sql = " INSERT INTO tbl_loginhistory "
+		                    + " (historyno, fk_userid, logindate, clientip) "
+		                    + " VALUES (seq_historyno.nextval, ?, SYSDATE, ?) ";
+
+		                pstmt = conn.prepareStatement(sql);
+		                pstmt.setString(1, userid);
+		                pstmt.setString(2, clientip);
+
+		                pstmt.executeUpdate();
+		            }
+		            
+		            // 기록을 남겼든 안 남겼든, UPDATE가 성공했으므로 최종 커밋
 		            conn.commit(); 
+		            
 		        } else {
+		            // UPDATE 실패 시 롤백
 		            conn.rollback(); 
 		        }
 
 		    } catch (Exception e) {
-		       
 		        if (conn != null) {
 		            try { conn.rollback(); } catch (SQLException ex) { } 
 		        }

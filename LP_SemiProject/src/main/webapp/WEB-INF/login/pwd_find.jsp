@@ -223,24 +223,89 @@
    </c:if>
    
    <c:if test="${isUserExists == true && sendSuccess == true}">
-       <div id="div_confirm">
-           <span style="font-size: 10pt; color: dark;">
-               인증코드가 발송되었습니다.<br>
-               인증코드를 입력해주세요.
-           </span>
-           <br>
-           <input type="text" name="input_confirmCode" class="mt-2" />
-           <br><br> 
-           <button type="button" class="btn btn-info">인증하기</button>
-       </div>
-       
-       <script type="text/javascript">
-           $('#btnFind').hide();
-           $('#spinner').hide(); // 결과가 오면 스피너도 숨김
-       </script>
-   </c:if>
-</div>
+    <div id="div_confirm">
+        <span style="font-size: 10pt; color: #333;">
+            인증코드가 발송되었습니다.<br>
+            인증코드를 입력해주세요.
+        </span>
+        <br>
+        
+        <div style="display: flex; justify-content: center; align-items: center; gap: 5px; margin-top: 10px;">
+            <input type="text" name="input_confirmCode" style="margin: 0; width: 150px; height: 30px;" />
+            <button type="button" class="btn btn-info" style="padding: 0 10px; height: 30px; line-height: 30px;">인증하기</button>
+        </div>
 
+        <div style="margin-top: 10px; font-size: 14px; color: #333;">
+            <span id="timer_area" style="font-weight: bold; margin-right: 12px;">
+                남은 시간 <span id="timer">05:00</span>
+            </span>
+            <span id="btn_extend" style="cursor: pointer; text-decoration: underline; margin-right: 12px;">남은시간연장</span>
+            <span id="btn_resend" style="cursor: pointer; text-decoration: underline;">재전송</span>
+        </div>
+    </div>
+</c:if>
+
+<script type="text/javascript">
+    let timeLeft = 300; 
+    let timerInterval = null;
+
+    $(function() {
+        // 페이지 로드 시, 이전에 연장을 이미 썼는지 확인
+        // localStorage는 브라우저를 닫기 전까지 값이 유지됩니다.
+        if(localStorage.getItem("isExtendedUsed") === "true") {
+            $('#btn_extend').hide();
+        }
+
+        if("${isUserExists}" == "true" && "${sendSuccess}" == "true") {
+            startTimer();
+        }
+
+        // 1. 남은시간연장 클릭
+        $(document).on('click', '#btn_extend', function() {
+            // 로컬스토리지 체크로 중복 연장 방지
+            if(localStorage.getItem("isExtendedUsed") !== "true") {
+                timeLeft = 300; 
+                localStorage.setItem("isExtendedUsed", "true"); // 연장 기록 저장
+                $(this).hide(); 
+                alert("시간이 5분 연장되었습니다.");
+            }
+        });
+
+        // 2. 재전송 클릭 (폼 제출 대신 AJAX 호출 추천)
+        $(document).on('click', '#btn_resend', function() {
+            if(!confirm("인증번호를 재전송하시겠습니까?")) return;
+            
+            // 재전송 시에는 타이머만 리셋하고, 폼을 전송합니다.
+            // 만약 AJAX를 쓰지 않고 기존처럼 submit을 한다면 
+            // 아래 goFind() 실행 시 페이지가 새로고침됩니다.
+            goFind(); 
+        });
+
+        // 3. 인증 성공 시 또는 페이지 이탈 시 상태 초기화 (필요 시)
+        // 비밀번호 찾기가 완전히 끝나면 localStorage.removeItem("isExtendedUsed"); 를 호출해야 합니다.
+    });
+
+    function startTimer() {
+        if(timerInterval) clearInterval(timerInterval);
+        
+        timerInterval = setInterval(function() {
+            let minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            
+            $('#timer').text(minutes + ":" + seconds);
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                alert("인증 시간이 만료되었습니다. 다시 시도해주세요.");
+                localStorage.removeItem("isExtendedUsed"); // 만료 시 초기화
+                location.reload(); 
+            } else {
+                timeLeft--;
+            }
+        }, 1000);
+    }
+</script>
 <form name="verifyCertificationFrm">
     <input type="hidden" name="userCertificationCode" />
     <input type="hidden" name="userid" />

@@ -39,7 +39,7 @@ public class Login extends AbstractController {
             return; 
         }
 
-        // ===== POST =====
+        
         String userid = request.getParameter("userid");
         String pwd = request.getParameter("pwd");
         String saveid = request.getParameter("saveid");
@@ -60,7 +60,7 @@ public class Login extends AbstractController {
             //  2. 휴면 판정 
         	if(loginuser.getIdle() == 1 || loginuser.getLastLoginGap() >= 12) {
             	
-        		// [휴면 상태]->idle_release로 이동 
+        		// 휴면 상태->idle_release로 이동 
                 session.setAttribute("idle_userid", userid);
                
                
@@ -79,7 +79,7 @@ public class Login extends AbstractController {
             //  4. 아이디 저장 쿠키
             if (saveid != null) {
                 Cookie cookie = new Cookie("saveid", userid);
-                cookie.setMaxAge(24 * 60 * 60); // 1일
+                cookie.setMaxAge(7*24 * 60 * 60); // 7일
                 cookie.setPath("/");
                 response.addCookie(cookie);
             } else {

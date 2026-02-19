@@ -38,12 +38,12 @@ public class PwdFind extends AbstractController {
 	        boolean sendSuccess = false; 
 	        
 	        if(isUserExists) {
-	        	// System.out.println(">>> [확인용] 현재 접속 Method : " + method);
+	        	
 	            // 2. 인증키 생성 (공통 사용을 위해 미리 선언)
 	            Random rnd = new Random();
 	            String certification_code = "";
 	            
-	            // 숫자로만 6자리 생성 (SMS/이메일 공통으로 쓰기 가장 무난함)
+	            // 숫자로만 6자리 생성
 	            for(int i=0; i<6; i++) {
 	                certification_code += String.valueOf(rnd.nextInt(10));
 	            }
@@ -58,15 +58,15 @@ public class PwdFind extends AbstractController {
 	                    e.printStackTrace();
 	                }
 	            } else {
-	            	 //System.out.println(">>> [확인용] 현재 접속 Method : " + method);
+	            	 
 	                // --- SMS 발송 로직 (Coolsms) ---
-	                String api_key = "NCSIGYCBOJDBFDGX"; // 실제 키 넣으세요
-	                String api_secret = "VIIHS01C4X0JJNPYCT00YTMP023D3SIM";
+	                String api_key = ""; // 실제 키 넣으세요
+	                String api_secret = "";
 	                Message coolsms = new Message(api_key, api_secret);
 	                
 	                HashMap<String, String> smsMap = new HashMap<>();
 	                smsMap.put("to", mobile);
-	                smsMap.put("from", "01042842838"); 
+	                smsMap.put("from", ""); 
 	                smsMap.put("type", "SMS");
 	                smsMap.put("text", "[VINYST] 인증번호 [" + certification_code + "] 를 인증 창에 입력하세요.");
 	                

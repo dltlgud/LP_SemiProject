@@ -1,1 +1,2 @@
-3팀 LP_SemiProject
+# LP_SemiProject
+3팀 LP 웹사이트
